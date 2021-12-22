@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="33f586a6-4fc2-4b52-ac05-c2556aebbac2" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="welcome-suneethaFlow" doc:id="e61181c7-1720-48a7-9082-95be20f5b491" >
+		<http:listener doc:name="/welcome" doc:id="27524e43-c0fc-47dc-9d9a-ca3dc2e6fd2f" config-ref="HTTP_Listener_config" path="/welcome"/>
+		<set-variable value="#[uuid()]" doc:name="Correlationid" doc:id="2057f068-276a-41f7-9efe-b2a34aecc531" variableName="Correlationid"/>
+		<logger level="INFO" doc:name="Logger variable" doc:id="616c3d5e-d9b6-46dd-87bd-a1d391b95caa" message="Correlationid #[vars.correlationid]"/>
+		<logger level="INFO" doc:name="Logger" doc:id="acf94c9e-7f6e-411a-b0d0-cd2744c94b0d" message="Correlationid #[vars.Correlationid] -reciived payload - #[payload]"/>
+		<set-variable value="" doc:name="Set Variable" doc:id="518cf919-17d2-4eae-9aa5-607ce7fce011" variableName="Actual Payload"/>
+		<set-payload value="Welcome to Mulesoft" doc:name="Welcome" doc:id="144478c4-8c1a-48bb-8236-a6bb3e19f985" />
+		<flow-ref doc:name="welcome-suneethaSub_FlowFlow Reference" doc:id="f9bedf90-a6cf-4d82-b448-e9aef436af3f" name="welcome-suneethaSub_Flow"/>
+		<flow-ref doc:name="private Flow Reference" doc:id="20124def-b9f8-4a35-856e-f0f615c60d79" name="welcome-suneethaFlow1"/>
+		<ee:transform doc:name="Transform Message" doc:id="06159736-13ae-4ced-891e-850b6ccc46f3">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/xml
+---
+root: payload
+]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="counter" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"counter":"1"
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="6adc1517-0a06-4941-8f7a-3b8a0a394a5f" message="Converted payload to xml - #[payload] &amp; Counter - #[vars.counter]"/>
+		<logger level="INFO" doc:name="payload logger" doc:id="75b0a93f-370b-401b-a514-d0383a61d5ec" message="Correlationid #[vars.correlationid] - #[payload]"/>
+	</flow>
+	<flow name="welcome-suneethaFlow1" doc:id="e49a5c9f-c55e-44d2-ac0f-b200ee9eb131" >
+		<logger level="INFO" doc:name="private flowlogger" doc:id="25d37af9-cca1-4d73-8984-775c5a2117ce" message="Correlationid #[vars.correlationid] private flowlogger"/>
+	</flow>
+	<sub-flow name="welcome-suneethaSub_Flow" doc:id="796bc160-42e8-4e92-915f-a26e0450dc32" >
+		<logger level="INFO" doc:name="subflow logger" doc:id="1f130df2-36fe-4391-9a17-d3fbe9741790" message="Correlationid #[vars.correlationid] subflow logger"/>
+	</sub-flow>
+</mule>
